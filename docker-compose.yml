@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: shop_postgres:latest
+    restart: no
+    environment:
+      POSTGRES_USER: shopuser
+      POSTGRES_PASSWORD: shoppassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./data:/app/data
+      - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  redis:
+    image: redis:latest
+    restart: no
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: no
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+
+volumes:
+  pgdata:
+  redisdata:
